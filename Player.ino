@@ -938,5 +938,5 @@ void drawBitmapCustom(Figther * play, byte dst_x, byte dst_y, const uint8_t *bit
   byte dst_h = pgm_read_byte(&player_sprites[play->currentCharater][3]);
 
  
- drawBitmapMask(dst_x, dst_x, dst_w, dst_h, src_x, src_y, bitmap, mask, rotation, flip);
+ drawBitmapMask(dst_x, dst_y, dst_w, dst_h, src_x, src_y, bitmap, mask, rotation, flip);
 }
