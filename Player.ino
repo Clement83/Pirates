@@ -4,7 +4,6 @@ void updPlayer(Figther * player,Figther * other);
 void drwPlayer(Figther * player);
 void movePlayer(Figther * player);
 void movePlayerSlave();
-void changeBoundPlayer(Figther * player);
 boolean playerIsAttack(Figther player);
 void gestionAttack(Figther * pAttack, Figther * pDef);
 boolean addToCombo(Figther *player, byte moveTouch);
@@ -25,11 +24,9 @@ void initPlayer(boolean isStartGame)
   Player1.posY = 47;
   Player1.vx = 0;
   Player1.vy = 0;
-  Player1.width = 28;
-  Player1.height = 29;
   Player1.life = 100;
   Player1.oldLife = 100;
-  Player1.cadance = 2;
+  Player1.cadance = 3;
   Player1.damage = 5;
   Player1.dir = NOFLIP;
   Player1.timeAttack = TIME_ATTACK;
@@ -41,8 +38,6 @@ void initPlayer(boolean isStartGame)
   Player2.posY = 47;
   Player2.vx = 0;
   Player2.vy = 0;
-  Player2.width = 29;
-  Player2.height = 27;
   Player2.life = 100;
   Player2.oldLife = 100;
   Player2.cadance = 2;
@@ -66,24 +61,7 @@ void initPlayer(boolean isStartGame)
   bt_a = false;
   bt_b = false;
 }
-void updatePlayerSalve()
-{
-  switch(stateFight)
-  {
-    case 0 :
-       //3, 2, 1 Fight! 
-    break;
-    case 1 :
-      movePlayerSlave();
-    break;
-    case 2 :
-       //Figther KO 
-    case 3 :
-       //Time UP 
-      
-    break;
-  }
-}
+
 void updatePlayer()
 {
    
@@ -172,6 +150,8 @@ void updatePlayer()
 
 void gestionAttack(Figther * pAttack, Figther * pDef)
 {
+  return;
+  /*
     // IDL : 0 ,run : 1, kick : 2, punchLeft : 3, punchRight : 4,  duck1 : 5, duck1Kick : 6,jump1 : 7,jumpKick1 : 8 , dead1 : 9
     byte damage = 0;
     if(pAttack->currentState == 3 || pAttack->currentState == 4)
@@ -209,29 +189,6 @@ void gestionAttack(Figther * pAttack, Figther * pDef)
       }
     }
     
-   /*if(pAttack->ayouken.timeLive > 0)
-   {
-      if(gb.collideRectRect(pAttack->ayouken.posX, pAttack->ayouken.posY, 6, 6, pDef->posX, (pDef->posY - pDef->height), 6, pDef->height))
-      {
-        damage = DAMAGE_AYOUKEN;
-        if(pAttack->ayouken.timeLive>0)
-        {
-          (&pAttack->ayouken)->timeLive -= (pAttack->ayouken.timeLive>2)? 2 : 1; 
-        }
-        playerFall(3,pDef);
-      }
-      if(pDef->ayouken.timeLive > 0)
-      {
-        if(gb.collideRectRect(pAttack->ayouken.posX, pAttack->ayouken.posY, 6, 6, pDef->ayouken.posX, pDef->ayouken.posY, 6, 6))
-        {
-          if(pAttack->ayouken.timeLive>0)
-          {
-            (&pAttack->ayouken)->timeLive -= (pAttack->ayouken.timeLive>2)? 2 : 1; 
-            (&pDef->ayouken)->timeLive -= (pDef->ayouken.timeLive>2)? 2 : 1; 
-          }
-        }
-      }
-   }*/
     
     if(damage)
     {
@@ -274,7 +231,7 @@ void gestionAttack(Figther * pAttack, Figther * pDef)
           pDef->vy = -SPEED_RUN*6;
         }
       }
-    }
+    }*/
 }
 
 void playerFall(byte chance,Figther *pDef)
@@ -283,7 +240,6 @@ void playerFall(byte chance,Figther *pDef)
   {
     pDef->currentState = 9;
     pDef->timeFall = TIME_FALL;
-    changeBoundPlayer(pDef);
   }
 }
 
@@ -333,12 +289,14 @@ void drwPlayer(Figther * player)
   {
     gb.display.drawBitmap(player->ayouken.posX,player->ayouken.posY,(player->ayouken.timeLive>(TIME_LIVE_AYOUKEN/3))? player->ayouken.sprites.sprite1 : player->ayouken.sprites.sprite2,0,player->ayouken.dir );
   }*/
+  byte dst_w = pgm_read_byte(&player_sprites[((player->currentState*2) + player->currentSprite)][2]);
+  byte dst_h = pgm_read_byte(&player_sprites[((player->currentState*2) + player->currentSprite)][3]);
   
   drawBitmapCustom(player,
-  ((player->dir == NOFLIP)? player->posX : (player->posX - player->width)) ,
-  (player->posY - player->height) , 
-  Sprites,
-  SpritesMask,
+  ((player->dir == NOFLIP)? player->posX : (player->posX - dst_w)) ,
+  (player->posY - dst_h) , 
+  SpritesP1,
+  SpritesP1Mask,
   0,
   player->dir);
 }
@@ -380,7 +338,7 @@ void updPlayer(Figther * player,Figther * other)
   {
     if(player->timeAttack==0 && player->currentState != 0 && player->currentState != 5  && player->currentState != 9 && player->timeFall ==0)
     {
-      // IDL : 0 ,run : 1, kick : 2, punchLeft : 3, punchRight : 4,  duck1 : 5, duck1Kick : 6,jump1 : 7,jumpKick1 : 8 , dead1 : 9
+      // IDL : 0 ,run : 1, jump : 2, punchLeft : 3
       if(player->currentState == 6)
         player->currentState = 5;
       else if(player->isJump)
@@ -390,16 +348,21 @@ void updPlayer(Figther * player,Figther * other)
       else 
         player->currentState = 1;
       
-      changeBoundPlayer(player);
     }
   }
   else 
   {
     player->currentState = 9;
-    changeBoundPlayer(player);
   }
   
-  if( ((player->vx>0 && player->dir == NOFLIP) || (player->vx<0 && player->dir != NOFLIP))  && gb.collideRectRect(player->posX, (player->posY - player->height), player->width, player->height, other->posX, (other->posY - other->height), other->width, other->height))
+  byte play_w = pgm_read_byte(&player_sprites[((player->currentState*2) + player->currentSprite)][2]);
+  byte play_h = pgm_read_byte(&player_sprites[((player->currentState*2) + player->currentSprite)][3]);
+  
+  byte other_w = pgm_read_byte(&player_sprites[((other->currentState*2) + other->currentSprite)][2]);
+  byte other_h = pgm_read_byte(&player_sprites[((other->currentState*2) + other->currentSprite)][3]);
+  
+  
+  if( ((player->vx>0 && player->dir == NOFLIP) || (player->vx<0 && player->dir != NOFLIP))  && gb.collideRectRect(player->posX, (player->posY - play_h), play_w, play_h, other->posX, (other->posY - other_h), other_w, other_h))
   {
     player->vx = 0;
   }
@@ -595,13 +558,13 @@ void moveIAPlayer(Figther * player,Figther * human)
   }
 }
 
-// IDL : 0 ,run : 1, kick : 2, punchLeft : 3, punchRight : 4,  duck1 : 5, duck1Kick : 6,jump1 : 7,jumpKick1 : 8 , dead1 : 9
+// IDL : 0 ,run : 1, jump : 3, punchLeft : 4
 void leftFigther(Figther * player)
 {
   if(player->life==0)
     return;
-  if(addToCombo(player,((player->dir == NOFLIP)? 4 : 3)))
-    return;
+  //if(addToCombo(player,((player->dir == NOFLIP)? 4 : 3)))
+    //return;
   if(!player->isJump)
   {
     
@@ -633,15 +596,15 @@ void leftFigther(Figther * player)
     if(player->vx>-SPEED_RUN) player->vx -= 0.1;
   }
   
-    changeBoundPlayer(player);
 }
 
+// IDL : 0 ,run : 1, jump : 3, punchLeft : 4
 void rightFigther(Figther * player)
 {
   if(player->life==0)
     return;
-  if(addToCombo(player,((player->dir == NOFLIP)? 3 : 4)))
-    return;
+  //if(addToCombo(player,((player->dir == NOFLIP)? 3 : 4)))
+    //return;
   if(!player->isJump)
   {
     if(player->dir == FLIPH)
@@ -668,12 +631,10 @@ void rightFigther(Figther * player)
         return;
     if(player->vx<SPEED_RUN) player->vx += 0.1;
   }
-    changeBoundPlayer(player);
 }
 
 void highFigther(Figther * player)
 {
-  return;
   if(player->timeNextAttack>0)
     return;
   if(player->life==0)
@@ -682,8 +643,7 @@ void highFigther(Figther * player)
     return;
  if(!player->isJump)
  {
-    player->currentState = 7;
-    changeBoundPlayer(player);
+    player->currentState = 2;
     player->isJump = true;
     player->vy = -SPEED_RUN;
  }
@@ -691,6 +651,7 @@ void highFigther(Figther * player)
 
 void bottomFigther(Figther * player)
 {
+  return;
   if(player->life==0)
     return;
   if(player->timeNextAttack>0)
@@ -698,9 +659,9 @@ void bottomFigther(Figther * player)
   if(addToCombo(player,2))
     return;
   player->currentState = 5;
-  changeBoundPlayer(player);
 }
 
+// IDL : 0 ,run : 1, jump : 2, punchLeft : 3
 void punchFigther(Figther * player)
 {
   if(player->life==0)
@@ -709,29 +670,18 @@ void punchFigther(Figther * player)
     return;
   playsoundfx(1,0);
  
-  if(addToCombo(player,5))
-    return;
-  if(player->currentState == 5)
+ if(!player->isJump)
   {
-     player->currentState = 6;
-     player->timeAttack = TIME_ATTACK;
-  }
-  else if(!player->isJump)
-  {
-    player->currentState = random(3,5);
+    player->currentState = 3;
     player->timeAttack = TIME_ATTACK;
   }
-  else 
-  {
-    player->currentState = 8;
-    player->timeAttack = TIME_ATTACK*4;
-  }
+
   player->timeNextAttack = TIME_ATTACK+1; // puch are fast 
-  changeBoundPlayer(player);
 }
 
 void kickFigther(Figther * player)
 {
+  return;
   if(player->life==0)
     return;
   if(player->timeNextAttack>0)
@@ -755,16 +705,8 @@ void kickFigther(Figther * player)
   player->currentState = 2;
  }
   player->timeNextAttack = TIME_ATTACK+3; // Kick are slow 
-  changeBoundPlayer(player);
 }
 
-void changeBoundPlayer(Figther * player)
-{
-  //spritesAllPirates[player->currentCharater][player->currentState].sprite1
-  
-  player->width = pgm_read_byte(&player_sprites[player->currentCharater][2]);
-  player->height = pgm_read_byte(&player_sprites[player->currentCharater][3]);
-}
 
 boolean playerIsAttack(Figther player)
 {
@@ -845,7 +787,7 @@ void drawBitmapMask(int8_t dst_x, int8_t dst_y, int8_t dst_w, int8_t dst_h, int 
     {
       for (int dx = 0, i = src_x; dx < dst_w; dx++, i++)
       {
-        if (pgm_read_byte(bitmap + (j * byteWidth + i / 8)) & (B10000000 >> (i % 8)))
+        if (pgm_read_byte(mask + (j * byteWidth + i / 8)) & (B10000000 >> (i % 8)))
         {
           if (pgm_read_byte(bitmap + (j * byteWidth + i / 8)) & (B10000000 >> (i % 8)))
           {
@@ -932,11 +874,12 @@ void drawBitmapMask(int8_t dst_x, int8_t dst_y, int8_t dst_w, int8_t dst_h, int8
 
 void drawBitmapCustom(Figther * play, byte dst_x, byte dst_y, const uint8_t *bitmap, const uint8_t *mask,uint8_t rotation, uint8_t flip)
 {  
-  byte src_x = pgm_read_byte(&player_sprites[play->currentCharater][0]);
-  byte src_y = pgm_read_byte(&player_sprites[play->currentCharater][1]);
-  byte dst_w = pgm_read_byte(&player_sprites[play->currentCharater][2]);
-  byte dst_h = pgm_read_byte(&player_sprites[play->currentCharater][3]);
+  //TODO mettre le currentState
+  byte src_x = pgm_read_byte(&player_sprites[((play->currentState*2) + play->currentSprite)][0]);
+  byte src_y = pgm_read_byte(&player_sprites[((play->currentState*2) + play->currentSprite)][1]);
+  byte dst_w = pgm_read_byte(&player_sprites[((play->currentState*2) + play->currentSprite)][2]);
+  byte dst_h = pgm_read_byte(&player_sprites[((play->currentState*2) + play->currentSprite)][3]);
 
- 
+// Serial.println(((play->currentCharater*2) +play->currentSprite));
  drawBitmapMask(dst_x, dst_y, dst_w, dst_h, src_x, src_y, bitmap, mask, rotation, flip);
 }

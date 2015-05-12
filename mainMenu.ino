@@ -41,20 +41,6 @@ void updateMainMenu()
   }
   else if(gb.buttons.pressed(BTN_A) && timeMinAffichageMenu == 0)
   {
-    if(focusItem == 1)
-    {
-      isMaster = false;  
-      isOnePlayer = false;  
-      isPaused = true;
-      setupMaster();
-      setupSlave();
-    }
-    else 
-    {
-      isMaster = false;  
-      isOnePlayer = true;  
-      isPaused = false; 
-    }
     stateGame = focusItem;
   }
 }

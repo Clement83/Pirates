@@ -16,8 +16,6 @@ const byte ileTresor[] PROGMEM = {88,48,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
 
 byte const * tabCpt[4]  = {fight,cptBold1,cptBold2,cptBold3}; 
 
-
-
 void initArena()
 {
  cptCombat = CPT_COMBAT_INIT;

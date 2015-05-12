@@ -22,8 +22,7 @@ void updateFinalScreen()
     initArena();
     if(choiceMenu)
     {
-      if(isOnePlayer) stateGame = 0;
-      else stateGame = 1;
+      stateGame = 0;
     }
     else 
     {
@@ -43,7 +42,7 @@ void drawFinalScreen()
       gb.display.drawBitmap(12,8,finalScreen);
   }
 
-  if(((isMaster|| isOnePlayer ) && Player1.cptVictory == 3) || ( (!isMaster && !isOnePlayer && Player2.cptVictory == 3)))
+  if(Player1.cptVictory == 3)
   {
     gb.display.drawBitmap(10,1,finalScreenWin);
   }
