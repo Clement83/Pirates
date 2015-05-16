@@ -22,12 +22,10 @@ void updateFinalScreen()
     initArena();
     if(choiceMenu)
     {
-      //on refait un combat
       stateGame = 0;
     }
     else 
     {
-      //on part sur le menu principal
       stateGame = 3;
     }
   }
