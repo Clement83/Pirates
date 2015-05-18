@@ -1,3 +1,9 @@
+/**
+* 2015
+* Code by clement
+* Art by jerom
+*/
+
 #include <SPI.h>
 #include <Gamebuino.h>
 Gamebuino gb;
